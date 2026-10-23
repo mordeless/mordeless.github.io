@@ -14,9 +14,6 @@
   .skwrap { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
   .skwrap canvas { position:absolute; left:0; top:0; }
   #sk { opacity:.18; }
-  #lit { opacity:.6; -webkit-mask-image:radial-gradient(circle 230px at var(--mx) var(--my), #000 0%, transparent 100%); mask-image:radial-gradient(circle 230px at var(--mx) var(--my), #000 0%, transparent 100%); }
-  .glow { position:absolute; left:0; top:0; width:640px; height:640px; margin:-320px 0 0 -320px; border-radius:50%; pointer-events:none; mix-blend-mode:screen;
-    background:radial-gradient(circle, #7c5cff20 0%, #7c5cff0a 40%, transparent 68%); will-change:transform; }
   .bg::before, .bg::after { content:""; position:absolute; width:90vw; height:60vh; border-radius:50%; filter:blur(80px); opacity:.45;
     background:radial-gradient(closest-side, #3a1f6e, transparent); animation:fog 40s ease-in-out infinite alternate; }
   .bg::before { top:5vh; left:-20vw; }
@@ -84,6 +81,14 @@
   #vol::-moz-range-track { height:1px; background:#4a3a8c; }
   #vol::-moz-range-progress { height:1px; background:#cdbcff; }
   #vol::-moz-range-thumb { width:9px; height:9px; border:0; border-radius:50%; background:#fff; }
+  .volw { display:inline-flex; align-items:center; }
+  #vbtn { background:none; border:0; color:var(--fg); padding:4px; cursor:pointer; display:inline-flex; opacity:.85; }
+  #vbtn:hover, #vbtn:focus-visible { opacity:1; outline:none; }
+  #vbtn svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; }
+  #vbtn .x { display:none; }
+  .volw.muted .w { display:none; } .volw.muted .x { display:inline; }
+  #vol { width:0; opacity:0; margin-left:0; pointer-events:none; transition:width .3s, opacity .3s, margin .3s; }
+  .volw:hover #vol, .volw:focus-within #vol, .volw.open #vol { width:90px; opacity:1; margin-left:8px; pointer-events:auto; }
   .eq { display:none; align-items:flex-end; gap:2px; height:16px; }
   body.playing .eq { display:inline-flex; }
   .eq i { width:3px; height:4px; background:#cdbcff; }
@@ -100,10 +105,9 @@
     .frame { margin-top:30px; }
     .grid { grid-template-columns:repeat(2, 1fr); gap:12px; }
     .body { padding:22px 3% 48px; }
-    .glow { width:420px; height:420px; margin:-210px 0 0 -210px; }
-    #player { font-size:15px; }
+      #player { font-size:15px; }
     .bar { gap:14px; }
-    #vol { width:70px; }
+    .volw:hover #vol, .volw:focus-within #vol, .volw.open #vol { width:70px; }
     .nv { font-size:40px; padding:12px; }
     #cap { font-size:14px; padding:0 20px; }
     #view img { max-width:96vw; }
@@ -117,8 +121,7 @@
 </head>
 <body>
   <div class="bg" id="bg" aria-hidden="true">
-    <div class="skwrap" id="skwrap"><canvas id="sk"></canvas><canvas id="lit"></canvas></div>
-    <div class="glow" id="glow"></div>
+    <div class="skwrap" id="skwrap"><canvas id="sk"></canvas></div>
   </div>
 
   <div class="brand">
@@ -160,7 +163,7 @@
 
 
   <footer>
-    <div class="bar"><button id="player" type="button"><span class="eq"><i></i><i></i><i></i></span><span id="t"></span></button><input id="vol" type="range" min="0" max="100" step="1" value="70" aria-label="Громкость"></div>
+    <div class="bar"><button id="player" type="button"><span class="eq"><i></i><i></i><i></i></span><span id="t"></span></button><div class="volw" id="volw"><button id="vbtn" type="button" aria-label="Громкость"><svg viewBox="0 0 20 20"><path d="M3 8h3l4-3.5v11L6 12H3z"/><path class="w" d="M13 7.5a3.5 3.5 0 010 5M15.5 5.5a6.5 6.5 0 010 9"/><path class="x" d="M13 8l4 4M17 8l-4 4"/></svg></button><input id="vol" type="range" min="0" max="100" step="1" value="70" aria-label="Громкость"></div></div>
     <audio id="audio" preload="none"></audio>
   </footer>
 
@@ -212,7 +215,7 @@
   setTimeout(loop, 500);
 
 
-  const sk = $("sk"), lit = $("lit"), wrapEl = $("skwrap"), bg = $("bg"), glow = $("glow");
+  const sk = $("sk"), wrapEl = $("skwrap");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const small = innerWidth < 700;
   const rnd = seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -233,7 +236,7 @@
     dpr = Math.min(devicePixelRatio || 1, 2); sprites.clear();
     const H = Math.min(innerHeight * .8, innerWidth * 1.09), Wd = H * 325 / 370; sc = H / 900;
     wrapEl.style.width = Wd + "px"; wrapEl.style.height = H + "px";
-    [sk, lit].forEach(c => { c.width = Wd * dpr; c.height = H * dpr; c.style.width = Wd + "px"; c.style.height = H + "px"; });
+    [sk].forEach(c => { c.width = Wd * dpr; c.height = H * dpr; c.style.width = Wd + "px"; c.style.height = H + "px"; });
     const m = document.createElement("canvas"); m.width = 325; m.height = 370;
     const x = m.getContext("2d");
     x.fillStyle = "#000"; x.fillRect(0, 0, 325, 370);
@@ -266,32 +269,17 @@
   let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(buildSkull, 250); });
   buildSkull();
 
-  // Один цикл: буквы «дышат» (разлетаются и собираются) + отталкиваются от курсора + свет за курсором
-  let tx = innerWidth / 2, ty = innerHeight / 3, cx = tx, cy = ty;
-  addEventListener("pointermove", e => { tx = e.clientX; ty = e.clientY; });
-  const RAD = 120;
+  // Цикл «дыхания»: буквы сами разлетаются и собираются (с курсором не взаимодействуют)
   function tick(t) {
-    cx += (tx - cx) * .08; cy += (ty - cy) * .08;
-    glow.style.transform = `translate(${cx}px,${cy}px)`;
-    const rc = wrapEl.getBoundingClientRect(), px = cx - rc.left, py = cy - rc.top;
-    bg.style.setProperty("--mx", px + "px"); bg.style.setProperty("--my", py + "px");
     const ctx = sk.getContext("2d"), T = t / 1000;
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, sk.width, sk.height);
     for (const p of parts) {
       let b = reduce ? 0 : .5 - .5 * Math.cos(T * .7 - p.ph);
       b = b * b * (3 - 2 * b);
-      let gx = p.dx * b, gy = p.dy * b;
-      if (!reduce) {
-        const ex = p.hx + gx - px, ey = p.hy + gy - py, dd = Math.hypot(ex, ey) || 1;
-        if (dd < RAD) { const f = (1 - dd / RAD) ** 2 * 55 * sc * 1.3; gx += ex / dd * f; gy += ey / dd * f; }
-      }
-      p.ox += (gx - p.ox) * .12; p.oy += (gy - p.oy) * .12;
-      ctx.setTransform(dpr * p.c, dpr * p.s, -dpr * p.s, dpr * p.c, dpr * (p.hx + p.ox), dpr * (p.hy + p.oy));
+      ctx.setTransform(dpr * p.c, dpr * p.s, -dpr * p.s, dpr * p.c, dpr * (p.hx + p.dx * b), dpr * (p.hy + p.dy * b));
       ctx.globalAlpha = p.a;
       ctx.drawImage(p.sp, -p.w / 2, -p.w / 2, p.w, p.w);
     }
-    const l = lit.getContext("2d");
-    l.setTransform(1, 0, 0, 1, 0, 0); l.clearRect(0, 0, lit.width, lit.height); l.drawImage(sk, 0, 0);
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -364,13 +352,17 @@
   let v0 = .7;
   try { const sv = localStorage.getItem("vol"); if (sv !== null && !isNaN(+sv)) v0 = +sv; } catch (e) {}
   audio.volume = v0;
-  if (Math.abs(audio.volume - v0) > .01) vol.style.display = "none";   // iPhone не даёт менять громкость из страницы
+  if (Math.abs(audio.volume - v0) > .01) $("volw").style.display = "none";   // iPhone не даёт менять громкость из страницы
   vol.value = Math.round(v0 * 100);
   const setV = () => {
     audio.volume = vol.value / 100; vol.style.setProperty("--v", vol.value + "%");
     try { localStorage.setItem("vol", vol.value / 100); } catch (e) {}
   };
-  vol.oninput = setV; setV();
+  const volw = $("volw");
+  const setV2 = () => { setV(); volw.classList.toggle("muted", +vol.value === 0); };
+  vol.oninput = setV2; setV2();
+  $("vbtn").onclick = e => { e.stopPropagation(); volw.classList.toggle("open"); };
+  addEventListener("pointerdown", e => { if (!volw.contains(e.target)) volw.classList.remove("open"); });
 </script>
 </body>
 </html>
