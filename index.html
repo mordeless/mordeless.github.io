@@ -54,8 +54,11 @@
 
   .cat { display:flex; justify-content:center; align-items:flex-start; flex-wrap:wrap; gap:26px; text-align:center; margin:6px 0 8px; font-size:15px; line-height:1.5; }
   .cat span { position:relative; display:inline-block; background:var(--card); color:var(--ink); padding:9px 16px; transform:rotate(-1.2deg); box-shadow:3px 4px 0 #0003; }
-  .cat span:nth-child(2) { transform:rotate(1.6deg); margin-top:8px; }
-  .cat span:nth-child(2)::before { transform:rotate(-4deg); }
+  .cat span { max-width:min(430px, 86vw); }
+  .cat i { display:block; margin-top:8px; text-align:right; font-style:normal; font-size:13px; opacity:.7; }
+  .cat.mail { position:fixed; right:20px; bottom:18px; margin:0; z-index:5; }
+  .cat.mail span { transform:rotate(1.8deg); }
+  .cat.mail span::before { transform:rotate(-4deg); }
   .cat span::before { content:""; position:absolute; top:-8px; left:50%; width:44px; height:14px; margin-left:-22px; background:var(--tape); transform:rotate(3deg); }
 
   #gal { display:grid; grid-template-rows:0fr; transition:grid-template-rows .8s ease; }
@@ -104,6 +107,7 @@
   .drag { cursor:grabbing !important; box-shadow:8px 12px 0 #0004 !important; }
 
   @media (max-width:640px) {
+    .cat.mail { position:static; margin-top:6px; }
     body { padding:16px 12px 70px; }
     .brand { top:16px; left:12px; }
     #stage { min-height:calc(100vh - 86px); }
@@ -150,7 +154,8 @@
 
   <section id="gal"><div class="clip"><div class="boardwrap"><div class="board" id="board"><div class="grid" id="grid"></div></div></div></div></section>
 
-  <div class="cat"><span>così è la vita</span><span> contact@kratnet.ru</span></div>
+  <div class="cat"><span>«These last few days are among the happiest I've ever ignored.»<i>— Doug Kenney</i></span></div>
+  <div class="cat mail"><span>me@kratnet.ru</span></div>
   </main>
 
   <div id="view">
@@ -165,7 +170,7 @@
   
 
   const PHOTOS = [
-    "icec.jpg", "DSC_0031.jpg", "DSC_0045.jpg", "DSC_0075.jpg", "DSC_0080.jpg",
+    "DSC_0029.jpg", "DSC_0031.jpg", "DSC_0045.jpg", "DSC_0075.jpg", "DSC_0080.jpg",
     "cRazYWork.jpg", "traile.jpg", "upup.jpg", "believe.jpg","connexion.jpg","vyatkahill.jpg", "serpent.jpg", "l' espoir.jpg", "verdure.jpg", "ya.jpg","MOUSSE.jpg","industriel2.jpg",
     "domination sur le secteur industriel.jpg", "otpe4atok.jpg", "iron_vagina.jpg", "industriel.jpg","vilenie.jpg","restes2.jpg",
     "colère.jpg", "glaz .jpg","ijJ.jpg",
