@@ -88,7 +88,7 @@
     100% { clip-path:inset(0 0 0 0); transform:translate(0); filter:none; }
   }
 
-  #view { position:fixed; inset:0; z-index:10; background:#0b0a09f2; color:var(--card); display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+  #view { position:fixed; inset:0; z-index:1000; background:#0b0a09f2; color:var(--card); display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
   #view.on { display:flex; }
   #zbox { overflow:hidden; line-height:0; cursor:zoom-in; max-width:96vw; }
   #zbox.z { cursor:zoom-out; }
@@ -170,7 +170,7 @@
   
 
   const PHOTOS = [
-    "icec.jpg", "DSC_0031.jpg", "DSC_0045.jpg", "DSC_0075.jpg", "DSC_0080.jpg",
+    "DSC_0029.jpg", "DSC_0031.jpg", "DSC_0045.jpg", "DSC_0075.jpg", "DSC_0080.jpg",
     "cRazYWork.jpg", "traile.jpg", "upup.jpg", "believe.jpg","connexion.jpg","vyatkahill.jpg", "serpent.jpg", "l' espoir.jpg", "verdure.jpg", "ya.jpg","MOUSSE.jpg","industriel2.jpg",
     "domination sur le secteur industriel.jpg", "otpe4atok.jpg", "iron_vagina.jpg", "industriel.jpg","vilenie.jpg","restes2.jpg",
     "colère.jpg", "glaz .jpg","ijJ.jpg",
@@ -242,7 +242,7 @@
     el.addEventListener("pointerdown", e => {
       if (e.button !== 0) return;
       id = e.pointerId; el.setPointerCapture(id); sx = e.clientX; sy = e.clientY; dx = dy = 0; moved = false; blocked = false;
-      el.style.zIndex = ++zTop;
+      el.style.zIndex = Math.min(++zTop, 900);
       const t = getComputedStyle(el).translate; ox = oy = 0;      // подхватываем текущее место (в т.ч. если бумажка ещё едет назад)
       if (t && t !== "none") { const q = t.split(" "); ox = parseFloat(q[0]) || 0; oy = parseFloat(q[1]) || 0; }
       el.style.transition = ""; el.style.translate = `${ox}px ${oy}px`;
